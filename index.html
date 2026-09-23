@@ -3,220 +3,34 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>지원2담당 - 그냥 털었어 다이소</title>
+    <title>그냥 털었어 다이소 - 럭키 드로우 이벤트</title>
     <style>
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: radial-gradient(circle at center, #1a1a1a 0%, #0d0d0d 100%);
-            margin: 0;
-            padding: 20px;
-            color: #f3f4f6;
-            min-height: 100vh;
-        }
-        .container {
-            max-width: 800px;
-            margin: 30px auto;
-            background: #141414;
-            border: 2px solid #ff3b30;
-            padding: 35px;
-            border-radius: 20px;
-            box-shadow: 0 0 30px rgba(255, 59, 48, 0.2);
-        }
-        h1 {
-            text-align: center;
-            color: #ff3b30;
-            margin-bottom: 10px;
-            font-size: 28px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            text-shadow: 0 0 10px rgba(255, 59, 48, 0.4);
-        }
-        .subtitle {
-            text-align: center;
-            color: #9ca3af;
-            font-size: 14px;
-            margin-bottom: 30px;
-        }
-        .step-box {
-            background: #1f1f1f;
-            border: 1px solid #333;
-            padding: 20px;
-            border-radius: 12px;
-            margin-bottom: 25px;
-        }
-        label {
-            display: block;
-            margin-bottom: 10px;
-            font-weight: 700;
-            color: #ff6b6b;
-            font-size: 16px;
-        }
-        select {
-            width: 100%;
-            padding: 14px;
-            border: 2px solid #ff3b30;
-            border-radius: 8px;
-            font-size: 16px;
-            box-sizing: border-box;
-            background-color: #0d0d0d;
-            color: #fff;
-            transition: all 0.3s;
-        }
-        select:focus {
-            border-color: #ff6b6b;
-            outline: none;
-            box-shadow: 0 0 8px rgba(255, 59, 48, 0.5);
-        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Malgun Gothic', sans-serif; }
+        body { background-color: #121212; color: #fff; display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 20px; }
+        .container { background-color: #1e1e1e; border: 2px solid #ff4d4d; border-radius: 12px; width: 100%; max-width: 600px; padding: 30px; box-shadow: 0 0 20px rgba(255, 77, 77, 0.3); position: relative; }
+        h1 { text-align: center; color: #ff4d4d; margin-bottom: 5px; font-size: 24px; }
+        .subtitle { text-align: center; color: #aaa; font-size: 14px; margin-bottom: 25px; }
         
-        /* 럭키박스 그리드 스타일 */
-        .box-grid-container {
-            margin-top: 10px;
-        }
-        .box-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
-            gap: 15px;
-            max-height: 400px;
-            overflow-y: auto;
-            padding: 5px;
-        }
-        .lucky-box {
-            background: linear-gradient(135deg, #262626 0%, #111111 100%);
-            border: 2px solid #ff3b30;
-            color: #ff6b6b;
-            border-radius: 12px;
-            padding: 20px 10px;
-            text-align: center;
-            cursor: pointer;
-            font-weight: bold;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
-            transition: all 0.3s ease;
-            user-select: none;
-            position: relative;
-            overflow: hidden;
-        }
-        .lucky-box:hover {
-            transform: translateY(-5px);
-            border-color: #ff6b6b;
-            background: linear-gradient(135deg, #333333 0%, #1a1a1a 100%);
-            box-shadow: 0 0 15px rgba(255, 59, 48, 0.4);
-        }
-        .lucky-box.selected {
-            background: #111;
-            border-color: #444;
-            color: #555;
-            cursor: not-allowed;
-            transform: none;
-            box-shadow: none;
-        }
-        .lucky-box .box-icon {
-            font-size: 24px;
-            margin-bottom: 5px;
-        }
-        .lucky-box .box-num {
-            font-size: 16px;
-            letter-spacing: 1px;
-        }
-        .lucky-box .box-owner {
-            font-size: 12px;
-            margin-top: 6px;
-            color: #ff9f43;
-            font-weight: bold;
-        }
-        .lucky-box.selected .box-owner {
-            color: #ff5252;
-        }
+        .step-box { background-color: #2a2a2a; border-radius: 8px; padding: 20px; margin-bottom: 20px; }
+        .step-title { font-size: 15px; color: #ff8080; margin-bottom: 12px; font-weight: bold; }
+        
+        select { width: 100%; padding: 12px; background-color: #121212; color: #fff; border: 1px solid #444; border-radius: 6px; font-size: 16px; outline: none; }
+        select:focus { border-color: #ff4d4d; }
 
-        /* 당첨 축하 팝업 모달 */
-        .modal {
-            display: none;
-            position: fixed;
-            z-index: 1000;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0,0,0,0.8);
-            backdrop-filter: blur(8px);
-            justify-content: center;
-            align-items: center;
-        }
-        .modal-content {
-            background: #1a1a1a;
-            border: 2px solid #ff3b30;
-            padding: 40px 30px;
-            border-radius: 20px;
-            text-align: center;
-            max-width: 420px;
-            width: 90%;
-            box-shadow: 0 0 40px rgba(255, 59, 48, 0.4);
-            animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        }
-        @keyframes popIn {
-            0% { transform: scale(0.6); opacity: 0; }
-            100% { transform: scale(1); opacity: 1; }
-        }
-        .modal-content h2 {
-            color: #ff3b30;
-            margin-top: 0;
-            font-size: 26px;
-            text-shadow: 0 0 10px rgba(255, 59, 48, 0.5);
-        }
-        .modal-gift-name {
-            font-size: 20px;
-            font-weight: bold;
-            color: #fff;
-            margin: 25px 0;
-            background: #0d0d0d;
-            border: 1px solid #ff3b30;
-            padding: 20px;
-            border-radius: 12px;
-            box-shadow: inset 0 0 10px rgba(255, 59, 48, 0.2);
-        }
-        .modal-btn {
-            background: linear-gradient(135deg, #ff3b30 0%, #c0392b 100%);
-            color: #fff;
-            border: none;
-            padding: 14px 25px;
-            font-size: 16px;
-            font-weight: bold;
-            border-radius: 8px;
-            cursor: pointer;
-            width: 100%;
-            transition: opacity 0.2s;
-        }
-        .modal-btn:hover {
-            opacity: 0.9;
-        }
+        .gift-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 10px; max-height: 350px; overflow-y: auto; padding-right: 5px; }
+        .gift-card { background-color: #333; border: 2px solid #444; border-radius: 8px; padding: 12px 8px; text-align: center; cursor: pointer; transition: all 0.2s; display: flex; flex-direction: column; justify-content: center; min-height: 80px; }
+        .gift-card:hover:not(.disabled) { border-color: #ff4d4d; background-color: #3a2222; transform: translateY(-2px); }
+        .gift-card.selected { background-color: #2c2c2c; border-color: #555; opacity: 0.5; cursor: not-allowed; }
+        
+        .gift-num { font-size: 18px; font-weight: bold; color: #ff8080; margin-bottom: 4px; }
+        .gift-name { font-size: 12px; color: #ddd; word-break: keep-all; }
+        .gift-owner { font-size: 11px; color: #ff4d4d; margin-top: 4px; font-weight: bold; }
 
-        .admin-section {
-            text-align: right;
-            margin-top: 30px;
-        }
-        .admin-btn {
-            background-color: transparent;
-            color: #777;
-            border: 1px solid #444;
-            padding: 8px 16px;
-            border-radius: 6px;
-            font-size: 12px;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-        .admin-btn:hover {
-            color: #ff3b30;
-            border-color: #ff3b30;
-        }
-        .loading, .message {
-            text-align: center;
-            font-size: 16px;
-            padding: 20px;
-            color: #9ca3af;
-        }
-        .error {
-            color: #ef4444;
-            font-weight: bold;
-        }
+        .reset-btn-wrap { text-align: right; margin-top: 10px; }
+        .reset-btn { background: none; border: 1px solid #555; color: #aaa; padding: 6px 12px; border-radius: 4px; font-size: 12px; cursor: pointer; }
+        .reset-btn:hover { border-color: #ff4d4d; color: #ff4d4d; }
+
+        .loading { text-align: center; color: #888; padding: 20px; }
     </style>
 </head>
 <body>
@@ -224,214 +38,160 @@
 <div class="container">
     <h1>🛒 그냥 털었어 다이소</h1>
     <div class="subtitle">지원2담당 럭키 드로우 이벤트</div>
-    
-    <div id="loading" class="loading">다이소 상품 데이터를 불러오는 중입니다...</div>
-    
-    <div id="app" style="display: none;">
-        <!-- 1단계: 참가자 선택 -->
-        <div class="step-box">
-            <label for="participant-select">👤 STEP 1. 참가자 본인 이름을 선택하세요</label>
-            <select id="participant-select" onchange="checkParticipant()">
-                <option value="">-- 이름을 선택하세요 --</option>
-            </select>
-        </div>
 
-        <!-- 2단계: 럭키박스 선택 그리드 (1~14번) -->
-        <div class="step-box" id="grid-section" style="opacity: 0.4; pointer-events: none;">
-            <label>🛍️ STEP 2. 마음에 드는 상품 번호를 터치하여 선택하세요</label>
-            <div class="box-grid-container">
-                <div id="box-grid" class="box-grid">
-                    <!-- 자바스크립트로 럭키박스 카드들이 동적으로 생성됩니다 -->
-                </div>
-            </div>
-        </div>
-        
-        <div id="result-message" class="message"></div>
+    <!-- STEP 1 -->
+    <div class="step-box">
+        <div class="step-title">👤 STEP 1. 참가자 본인 이름을 선택하세요</div>
+        <select id="participantSelect" onchange="onParticipantChange()">
+            <option value="">-- 이름을 선택하세요 --</option>
+        </select>
     </div>
 
-    <!-- 당첨 축하 팝업 모달 -->
-    <div id="success-modal" class="modal">
-        <div class="modal-content">
-            <h2>🎉 득템 성공! 🎉</h2>
-            <p>축하합니다! 당신이 뽑은 다이소 상품입니다</p>
-            <div id="modal-gift-display" class="modal-gift-name">상품 이름</div>
-            <button class="modal-btn" onclick="closeModalAndReload()">확인 및 완료</button>
-        </div>
+    <!-- STEP 2 -->
+    <div class="step-box">
+        <div class="step-title">🛍️ STEP 2. 마음에 드는 상품 번호를 터치하여 선택하세요</div>
+        <div id="giftContainer" class="loading">데이터를 불러오는 중입니다...</div>
     </div>
 
-    <!-- 관리자 초기화 버튼 -->
-    <div class="admin-section">
-        <button class="admin-btn" onclick="resetData()">⚙️ 관리자 초기화</button>
+    <div class="reset-btn-wrap">
+        <button class="reset-btn" onclick="resetData()">⚙️ 관리자 초기화</button>
     </div>
 </div>
 
 <script>
-    // 새로 발급받으신 웹 앱 URL 적용
-    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyo0YxH8NVukpQ0o3khocDurWcyPSDIDyO2EQp7km148Tv-vhakCBcKHOxBdZirWox4/exec';
-    let globalGifts = [];
+    const API_URL = "https://script.google.com/macros/s/AKfycbwztHpYDf_oq7ajsnfUv-uPw4MOAwINqtgfRVaN4PKPCCw_PEBNRdXpDM0-DyXCV9d5/exec";
+    let globalData = { participants: [], gifts: [] };
 
-    async function initData() {
-        try {
-            const response = await fetch(SCRIPT_URL);
-            const data = await response.json();
-
-            const pSelect = document.getElementById('participant-select');
-            pSelect.innerHTML = '<option value="">-- 이름을 선택하세요 --</option>';
-
-            data.participants.forEach(name => {
-                const opt = document.createElement('option');
-                opt.value = name;
-                opt.textContent = name;
-                pSelect.appendChild(opt);
+    // 데이터 불러오기
+    function loadData() {
+        fetch(API_URL)
+            .then(response => response.json())
+            .then(data => {
+                if(data.error) {
+                    alert("데이터 로드 오류: " + data.error);
+                    return;
+                }
+                globalData = data;
+                initParticipants();
+                renderGifts();
+            })
+            .catch(err => {
+                console.error(err);
+                document.getElementById('giftContainer').innerHTML = '<span style="color:#ff4d4d;">데이터를 불러오지 못했습니다.</span>';
             });
-
-            globalGifts = data.gifts;
-            renderBoxGrid();
-
-            document.getElementById('loading').style.display = 'none';
-            document.getElementById('app').style.display = 'block';
-
-        } catch (error) {
-            console.error('초기화 실패:', error);
-            document.getElementById('loading').innerHTML = '<span class="error">데이터를 불러오는 데 실패했습니다. 웹 앱 배포 상태 및 권한(모든 사용자)을 확인해주세요.</span>';
-        }
     }
 
-    function checkParticipant() {
-        const name = document.getElementById('participant-select').value;
-        const gridSection = document.getElementById('grid-section');
-
-        if (name) {
-            gridSection.style.opacity = '1';
-            gridSection.style.pointerEvents = 'auto';
-        } else {
-            gridSection.style.opacity = '0.4';
-            gridSection.style.pointerEvents = 'none';
-        }
-    }
-
-    function renderBoxGrid() {
-        const gridEl = document.getElementById('box-grid');
-        gridEl.innerHTML = '';
-
-        // 1번부터 14번까지 번호순 정렬
-        globalGifts.sort((a, b) => Number(a.number) - Number(b.number));
-
-        globalGifts.forEach(gift => {
-            const card = document.createElement('div');
-            card.className = 'lucky-box';
-            
-            if (gift.selected) {
-                card.classList.add('selected');
-                card.innerHTML = `
-                    <div class="box-icon">🔒</div>
-                    <div class="box-num">ITEM ${gift.number}</div>
-                    <div class="box-owner">👤 ${gift.empName}</div>
-                `;
-            } else {
-                card.innerHTML = `
-                    <div class="box-icon">🛍️</div>
-                    <div class="box-num">ITEM ${gift.number}</div>
-                    <div class="box-owner">PICK ME</div>
-                `;
-                card.onclick = () => selectGiftBox(gift.number, gift.name, card);
-            }
-            gridEl.appendChild(card);
+    // 참가자 목록 렌더링
+    function initParticipants() {
+        const select = document.getElementById('participantSelect');
+        const currentVal = select.value;
+        select.innerHTML = '<option value="">-- 이름을 선택하세요 --</option>';
+        
+        globalData.participants.forEach(name => {
+            const opt = document.createElement('option');
+            opt.value = name;
+            opt.textContent = name;
+            if(name === currentVal) opt.selected = true;
+            select.appendChild(opt);
         });
     }
 
-    async function selectGiftBox(giftNumber, giftName, cardElement) {
-        const name = document.getElementById('participant-select').value;
-        if (!name) {
-            alert('먼저 STEP 1에서 참가자 본인 이름을 선택해주세요!');
-            document.getElementById('participant-select').focus();
-            return;
-        }
+    // 상품 목록 렌더링
+    function renderGifts() {
+        const container = document.getElementById('giftContainer');
+        container.innerHTML = '';
+        container.className = 'gift-grid';
 
-        if (!confirm(`[${name}] 님, [ITEM ${giftNumber}] 상품을 선택하시겠습니까?\n한 번 선택한 상품은 변경할 수 없습니다.`)) {
-            return;
-        }
+        globalData.gifts.forEach(gift => {
+            const card = document.createElement('div');
+            card.className = `gift-card ${gift.selected ? 'selected' : ''}`;
+            
+            let html = `<div class="gift-num">${gift.number}번</div>`;
+            html += `<div class="gift-name">${gift.name}</div>`;
+            if(gift.selected) {
+                html += `<div class="gift-owner">(${gift.empName})</div>`;
+            }
+            card.innerHTML = html;
 
-        // 즉시 화면에서 비활성화 처리 및 선택자 이름 반영
-        cardElement.className = 'lucky-box selected';
-        cardElement.innerHTML = `
-            <div class="box-icon">🔒</div>
-            <div class="box-num">ITEM ${giftNumber}</div>
-            <div class="box-owner">👤 ${name}</div>
-        `;
-        cardElement.onclick = null;
-
-        document.getElementById('loading').style.display = 'block';
-        document.getElementById('app').style.opacity = '0.3';
-
-        try {
-            await fetch(SCRIPT_URL, {
-                method: 'POST',
-                mode: 'no-cors',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    name: name,
-                    giftNumber: giftNumber,
-                    giftName: `${giftNumber}번 - ${giftName}`
-                })
-            });
-
-            // 당첨 축하 팝업 모달 표시
-            document.getElementById('loading').style.display = 'none';
-            document.getElementById('app').style.opacity = '1';
-            document.getElementById('modal-gift-display').textContent = `ITEM ${giftNumber} : ${giftName}`;
-            document.getElementById('success-modal').style.display = 'flex';
-
-        } catch (error) {
-            console.error('기록 실패:', error);
-            alert('기록 중 오류가 발생했습니다.');
-            document.getElementById('loading').style.display = 'none';
-            document.getElementById('app').style.opacity = '1';
-        }
+            if(!gift.selected) {
+                card.onclick = () => selectGift(gift.number);
+            }
+            container.appendChild(card);
+        });
     }
 
-    function closeModalAndReload() {
-        document.getElementById('success-modal').style.display = 'none';
-        location.reload();
+    function onParticipantChange() {
+        // 선택 시 추가 액션이 필요할 경우 작성
     }
 
-    async function resetData() {
-        const password = prompt('관리자 비밀번호를 입력하세요:');
-        if (!password) return;
+    // 상품 선택 실행
+    function selectGift(giftNumber) {
+        const nameSelect = document.getElementById('participantSelect');
+        const selectedName = nameSelect.value;
 
-        if (password !== '1234') {
-            alert('비밀번호가 올바르지 않습니다.');
+        if(!selectedName) {
+            alert("먼저 STEP 1에서 본인 이름을 선택해주세요!");
+            nameSelect.focus();
             return;
         }
 
-        if (!confirm('정말로 모든 추첨 기록과 참가 상태를 초기화하시겠습니까?')) {
+        if(!confirm(`[${selectedName}] 님으로 ${giftNumber}번 상품을 선택하시겠습니까?`)) {
             return;
         }
 
-        try {
-            await fetch(SCRIPT_URL, {
-                method: 'POST',
-                mode: 'no-cors',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    action: 'reset',
-                    password: password
-                })
-            });
+        // 로딩 표시
+        document.getElementById('giftContainer').style.opacity = '0.5';
 
-            alert('성공적으로 초기화되었습니다.');
-            location.reload();
-        } catch (error) {
-            console.error('초기화 실패:', error);
-            alert('초기화 중 오류가 발생했습니다.');
-        }
+        fetch(API_URL, {
+            method: 'POST',
+            body: JSON.stringify({ name: selectedName, giftNumber: giftNumber })
+        })
+        .then(res => res.json())
+        .then(res => {
+            document.getElementById('giftContainer').style.opacity = '1';
+            if(res.status === 'success') {
+                alert("성공적으로 선택되었습니다!");
+                loadData(); // 최신 데이터 새로고침
+            } else if(res.status === 'already_selected') {
+                alert("이미 다른 사람이 선택한 상품입니다.");
+                loadData();
+            } else {
+                alert("오류가 발생했습니다: " + (res.message || '알 수 없는 오류'));
+            }
+        })
+        .catch(err => {
+            document.getElementById('giftContainer').style.opacity = '1';
+            console.error(err);
+            alert("통신 중 오류가 발생했습니다.");
+        });
     }
 
-    initData();
+    // 관리자 초기화
+    function resetData() {
+        const pwd = prompt("관리자 비밀번호를 입력하세요:");
+        if(!pwd) return;
+
+        fetch(API_URL, {
+            method: 'POST',
+            body: JSON.stringify({ action: 'reset', password: pwd })
+        })
+        .then(res => res.json())
+        .then(res => {
+            if(res.status === 'success') {
+                alert("초기화되었습니다.");
+                loadData();
+            } else {
+                alert("비밀번호가 틀렸거나 초기화에 실패했습니다.");
+            }
+        })
+        .catch(err => {
+            console.error(err);
+            alert("통신 중 오류가 발생했습니다.");
+        });
+    }
+
+    // 페이지 로드 시 데이터 호출
+    window.onload = loadData;
 </script>
 
 </body>
