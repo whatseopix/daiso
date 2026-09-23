@@ -3,157 +3,269 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>지원2담당 이벤트</title>
+    <title>지원2담당 - 시크릿 럭키박스 이벤트</title>
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f4f7f6;
+            background: radial-gradient(circle at center, #1a1a1a 0%, #0d0d0d 100%);
             margin: 0;
             padding: 20px;
-            color: #333;
+            color: #f3f4f6;
+            min-height: 100vh;
         }
         .container {
-            max-width: 600px;
-            margin: 40px auto;
-            background: #ffffff;
-            padding: 30px;
-            border-radius: 12px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+            max-width: 800px;
+            margin: 30px auto;
+            background: #141414;
+            border: 2px solid #d4af37;
+            padding: 35px;
+            border-radius: 20px;
+            box-shadow: 0 0 30px rgba(212, 175, 55, 0.2);
         }
         h1 {
             text-align: center;
-            color: #2c3e50;
-            margin-bottom: 25px;
+            color: #d4af37;
+            margin-bottom: 10px;
+            font-size: 30px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            text-shadow: 0 0 10px rgba(212, 175, 55, 0.4);
         }
-        .form-group {
-            margin-bottom: 20px;
+        .subtitle {
+            text-align: center;
+            color: #9ca3af;
+            font-size: 14px;
+            margin-bottom: 30px;
+        }
+        .step-box {
+            background: #1f1f1f;
+            border: 1px solid #333;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 25px;
         }
         label {
             display: block;
-            margin-bottom: 8px;
-            font-weight: 600;
-            color: #34495e;
+            margin-bottom: 10px;
+            font-weight: 700;
+            color: #d4af37;
+            font-size: 16px;
         }
-        select, button {
+        select {
             width: 100%;
-            padding: 12px;
-            border: 1px solid #ccc;
-            border-radius: 6px;
+            padding: 14px;
+            border: 2px solid #d4af37;
+            border-radius: 8px;
             font-size: 16px;
             box-sizing: border-box;
+            background-color: #0d0d0d;
+            color: #fff;
+            transition: all 0.3s;
         }
         select:focus {
-            border-color: #3498db;
+            border-color: #f3e5ab;
             outline: none;
+            box-shadow: 0 0 8px rgba(212, 175, 55, 0.5);
         }
-        .gift-display {
-            background: #eef2f3;
-            padding: 15px;
-            border-radius: 6px;
-            margin-top: 5px;
-            font-size: 18px;
-            font-weight: bold;
-            color: #2980b9;
-            text-align: center;
-        }
-        button {
-            background-color: #3498db;
-            color: white;
-            border: none;
-            font-weight: bold;
-            cursor: pointer;
-            transition: background 0.2s;
+        
+        /* 럭키박스 그리드 스타일 (블랙 & 골드) */
+        .box-grid-container {
             margin-top: 10px;
         }
-        button:hover {
-            background-color: #2980b9;
+        .box-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+            gap: 15px;
+            max-height: 400px;
+            overflow-y: auto;
+            padding: 5px;
+        }
+        .lucky-box {
+            background: linear-gradient(135deg, #262626 0%, #111111 100%);
+            border: 2px solid #d4af37;
+            color: #d4af37;
+            border-radius: 12px;
+            padding: 20px 10px;
+            text-align: center;
+            cursor: pointer;
+            font-weight: bold;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+            transition: all 0.3s ease;
+            user-select: none;
+            position: relative;
+            overflow: hidden;
+        }
+        .lucky-box:hover {
+            transform: translateY(-5px);
+            border-color: #f3e5ab;
+            background: linear-gradient(135deg, #333333 0%, #1a1a1a 100%);
+            box-shadow: 0 0 15px rgba(212, 175, 55, 0.4);
+        }
+        .lucky-box.selected {
+            background: #111;
+            border-color: #444;
+            color: #555;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        .lucky-box .box-icon {
+            font-size: 24px;
+            margin-bottom: 5px;
+        }
+        .lucky-box .box-num {
+            font-size: 16px;
+            letter-spacing: 1px;
+        }
+        .lucky-box .box-owner {
+            font-size: 11px;
+            margin-top: 6px;
+            color: #e74c3c;
+            font-weight: normal;
+        }
+        .lucky-box.selected .box-owner {
+            color: #888;
+        }
+
+        /* 당첨 축하 팝업 모달 (골드 테마) */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.8);
+            backdrop-filter: blur(8px);
+            justify-content: center;
+            align-items: center;
+        }
+        .modal-content {
+            background: #1a1a1a;
+            border: 2px solid #d4af37;
+            padding: 40px 30px;
+            border-radius: 20px;
+            text-align: center;
+            max-width: 420px;
+            width: 90%;
+            box-shadow: 0 0 40px rgba(212, 175, 55, 0.4);
+            animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        @keyframes popIn {
+            0% { transform: scale(0.6); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        .modal-content h2 {
+            color: #d4af37;
+            margin-top: 0;
+            font-size: 26px;
+            text-shadow: 0 0 10px rgba(212, 175, 55, 0.5);
+        }
+        .modal-gift-name {
+            font-size: 22px;
+            font-weight: bold;
+            color: #fff;
+            margin: 25px 0;
+            background: #0d0d0d;
+            border: 1px solid #d4af37;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: inset 0 0 10px rgba(212, 175, 55, 0.2);
+        }
+        .modal-btn {
+            background: linear-gradient(135deg, #d4af37 0%, #aa820a 100%);
+            color: #000;
+            border: none;
+            padding: 14px 25px;
+            font-size: 16px;
+            font-weight: bold;
+            border-radius: 8px;
+            cursor: pointer;
+            width: 100%;
+            transition: opacity 0.2s;
+        }
+        .modal-btn:hover {
+            opacity: 0.9;
+        }
+
+        .admin-section {
+            text-align: right;
+            margin-top: 30px;
         }
         .admin-btn {
-            background-color: #95a5a6;
-            margin-top: 30px;
-            font-size: 14px;
-            padding: 8px;
+            background-color: transparent;
+            color: #777;
+            border: 1px solid #444;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
         }
         .admin-btn:hover {
-            background-color: #7f8c8d;
+            color: #d4af37;
+            border-color: #d4af37;
         }
         .loading, .message {
             text-align: center;
             font-size: 16px;
             padding: 20px;
-            color: #7f8c8d;
-        }
-        .success {
-            color: #27ae60;
-            font-weight: bold;
+            color: #9ca3af;
         }
         .error {
-            color: #e74c3c;
+            color: #ef4444;
             font-weight: bold;
-        }
-        .result-card {
-            background: #e8f8f5;
-            border: 2px solid #27ae60;
-            padding: 20px;
-            border-radius: 8px;
-            text-align: center;
-            margin-top: 20px;
-        }
-        .result-card h2 {
-            color: #27ae60;
-            margin-top: 0;
-            margin-bottom: 10px;
-        }
-        .result-gift-name {
-            font-size: 22px;
-            font-weight: bold;
-            color: #2c3e50;
-            margin-top: 5px;
         }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h1>🎁 지원2담당 럭키 드로우 이벤트</h1>
-    <div id="loading" class="loading">데이터를 불러오는 중입니다...</div>
+    <h1>🎁 SECRET LUCKY BOX</h1>
+    <div class="subtitle">지원2담당 시크릿 럭키 드로우 이벤트</div>
+    
+    <div id="loading" class="loading">럭키박스 데이터를 불러오는 중입니다...</div>
     
     <div id="app" style="display: none;">
-        <div class="form-group">
-            <label for="participant-select">참가자 선택</label>
-            <select id="participant-select">
+        <!-- 1단계: 참가자 선택 -->
+        <div class="step-box">
+            <label for="participant-select">👤 STEP 1. 참가자 본인 이름을 선택하세요</label>
+            <select id="participant-select" onchange="checkParticipant()">
                 <option value="">-- 이름을 선택하세요 --</option>
             </select>
         </div>
 
-        <div class="form-group">
-            <label for="gift-select">번호 선택 (선물 미리보기)</label>
-            <select id="gift-select" onchange="updateGiftName()">
-                <option value="">-- 번호와 선물을 선택하세요 --</option>
-            </select>
+        <!-- 2단계: 럭키박스 선택 그리드 (1~14번) -->
+        <div class="step-box" id="grid-section" style="opacity: 0.4; pointer-events: none;">
+            <label>✨ STEP 2. 행운의 럭키박스를 직접 터치하여 선택하세요</label>
+            <div class="box-grid-container">
+                <div id="box-grid" class="box-grid">
+                    <!-- 자바스크립트로 럭키박스 카드들이 동적으로 생성됩니다 -->
+                </div>
+            </div>
         </div>
-
-        <div class="form-group">
-            <label>선택된 선물 미리보기</label>
-            <div id="gift-name-display" class="gift-display">번호를 선택하면 선물이 표시됩니다</div>
-        </div>
-
-        <button onclick="submitRecord()">최종 선택 및 응모하기</button>
+        
         <div id="result-message" class="message"></div>
     </div>
 
-    <div id="success-card" style="display: none;" class="result-card">
-        <h2>🎉 응모가 완료되었습니다!</h2>
-        <p>당첨되신 선물은 다음과 같습니다:</p>
-        <div id="final-output-gift" class="result-gift-name"></div>
+    <!-- 당첨 축하 팝업 모달 -->
+    <div id="success-modal" class="modal">
+        <div class="modal-content">
+            <h2>🎉 SECRET REVEAL! 🎉</h2>
+            <p>축하합니다! 당신이 뽑은 선물입니다</p>
+            <div id="modal-gift-display" class="modal-gift-name">선물 이름</div>
+            <button class="modal-btn" onclick="closeModalAndReload()">확인 및 완료</button>
+        </div>
     </div>
 
     <!-- 관리자 초기화 버튼 -->
-    <button class="admin-btn" onclick="resetData()">⚙️ 관리자 데이터 초기화</button>
+    <div class="admin-section">
+        <button class="admin-btn" onclick="resetData()">⚙️ 관리자 초기화</button>
+    </div>
 </div>
 
 <script>
-    // 새 웹 앱 URL 반영
     const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyfl_5N8HNgZ2lRttGwxDgnculZZWdpnF-9SYIK1UZ3io68t_5D3P_0ZnoWUkid_BXl/exec';
     let globalGifts = [];
 
@@ -163,10 +275,7 @@
             const data = await response.json();
 
             const pSelect = document.getElementById('participant-select');
-            const gSelect = document.getElementById('gift-select');
-
             pSelect.innerHTML = '<option value="">-- 이름을 선택하세요 --</option>';
-            gSelect.innerHTML = '<option value="">-- 번호와 선물을 선택하세요 --</option>';
 
             data.participants.forEach(name => {
                 const opt = document.createElement('option');
@@ -176,56 +285,74 @@
             });
 
             globalGifts = data.gifts;
-            globalGifts.forEach(gift => {
-                const opt = document.createElement('option');
-                opt.value = gift.number;
-                opt.textContent = `번호 ${gift.number}번 - ${gift.name}`;
-                gSelect.appendChild(opt);
-            });
+            renderBoxGrid();
 
             document.getElementById('loading').style.display = 'none';
             document.getElementById('app').style.display = 'block';
 
         } catch (error) {
             console.error('초기화 실패:', error);
-            document.getElementById('loading').innerHTML = '<span class="error">데이터를 불러오는 데 실패했습니다. 배포 상태를 확인해주세요.</span>';
+            document.getElementById('loading').innerHTML = '<span class="error">데이터를 불러오는 데 실패했습니다. 웹 앱 배포 상태를 확인해주세요.</span>';
         }
     }
 
-    function updateGiftName() {
-        const selectedNum = document.getElementById('gift-select').value;
-        const displayEl = document.getElementById('gift-name-display');
-
-        if (!selectedNum) {
-            displayEl.textContent = '번호를 선택하면 선물이 표시됩니다';
-            return;
-        }
-
-        const found = globalGifts.find(g => String(g.number) === String(selectedNum));
-        if (found) {
-            displayEl.textContent = `${found.number}번: ${found.name}`;
-        } else {
-            displayEl.textContent = '선물을 찾을 수 없습니다';
-        }
-    }
-
-    async function submitRecord() {
+    function checkParticipant() {
         const name = document.getElementById('participant-select').value;
-        const giftNumber = document.getElementById('gift-select').value;
-        const giftNameDisplay = document.getElementById('gift-name-display').textContent;
-        const msgEl = document.getElementById('result-message');
+        const gridSection = document.getElementById('grid-section');
 
+        if (name) {
+            gridSection.style.opacity = '1';
+            gridSection.style.pointerEvents = 'auto';
+        } else {
+            gridSection.style.opacity = '0.4';
+            gridSection.style.pointerEvents = 'none';
+        }
+    }
+
+    function renderBoxGrid() {
+        const gridEl = document.getElementById('box-grid');
+        gridEl.innerHTML = '';
+
+        // 1번부터 14번까지 번호순 정렬
+        globalGifts.sort((a, b) => Number(a.number) - Number(b.number));
+
+        globalGifts.forEach(gift => {
+            const card = document.createElement('div');
+            card.className = 'lucky-box';
+            
+            if (gift.selected) {
+                card.classList.add('selected');
+                card.innerHTML = `
+                    <div class="box-icon">🔒</div>
+                    <div class="box-num">BOX ${gift.number}</div>
+                    <div class="box-owner">OPENED (${gift.empName || '선택됨'})</div>
+                `;
+            } else {
+                card.innerHTML = `
+                    <div class="box-icon">🎁</div>
+                    <div class="box-num">BOX ${gift.number}</div>
+                    <div class="box-owner">OPEN</div>
+                `;
+                card.onclick = () => selectGiftBox(gift.number, gift.name);
+            }
+            gridEl.appendChild(card);
+        });
+    }
+
+    async function selectGiftBox(giftNumber, giftName) {
+        const name = document.getElementById('participant-select').value;
         if (!name) {
-            alert('참가자 이름을 선택해주세요.');
-            return;
-        }
-        if (!giftNumber) {
-            alert('번호를 선택해주세요.');
+            alert('먼저 STEP 1에서 참가자 본인 이름을 선택해주세요!');
+            document.getElementById('participant-select').focus();
             return;
         }
 
-        msgEl.textContent = '기록 중입니다...';
-        msgEl.className = 'message';
+        if (!confirm(`[${name}] 님, [BOX ${giftNumber}]를 선택하시겠습니까?\n한 번 선택한 박스는 변경할 수 없습니다.`)) {
+            return;
+        }
+
+        document.getElementById('loading').style.display = 'block';
+        document.getElementById('app').style.opacity = '0.3';
 
         try {
             await fetch(SCRIPT_URL, {
@@ -237,19 +364,26 @@
                 body: JSON.stringify({
                     name: name,
                     giftNumber: giftNumber,
-                    giftName: giftNameDisplay
+                    giftName: `${giftNumber}번 - ${giftName}`
                 })
             });
 
-            document.getElementById('app').style.display = 'none';
-            document.getElementById('final-output-gift').textContent = giftNameDisplay;
-            document.getElementById('success-card').style.display = 'block';
+            // 당첨 축하 팝업 모달 표시
+            document.getElementById('loading').style.display = 'none';
+            document.getElementById('modal-gift-display').textContent = `BOX ${giftNumber} : ${giftName}`;
+            document.getElementById('success-modal').style.display = 'flex';
 
         } catch (error) {
             console.error('기록 실패:', error);
-            msgEl.textContent = '기록 중 오류가 발생했습니다.';
-            msgEl.className = 'message error';
+            alert('기록 중 오류가 발생했습니다.');
+            document.getElementById('loading').style.display = 'none';
+            document.getElementById('app').style.opacity = '1';
         }
+    }
+
+    function closeModalAndReload() {
+        document.getElementById('success-modal').style.display = 'none';
+        location.reload();
     }
 
     async function resetData() {
