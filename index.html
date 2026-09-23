@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>지원2담당 - 그냥 털었어 다이소 이벤트</title>
+    <title>지원2담당 - 그냥 털었어 다이소</title>
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -266,7 +266,8 @@
 </div>
 
 <script>
-    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyfl_5N8HNgZ2lRttGwxDgnculZZWdpnF-9SYIK1UZ3io68t_5D3P_0ZnoWUkid_BXl/exec';
+    // 새로 발급받으신 웹 앱 URL 적용
+    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyo0YxH8NVukpQ0o3khocDurWcyPSDIDyO2EQp7km148Tv-vhakCBcKHOxBdZirWox4/exec';
     let globalGifts = [];
 
     async function initData() {
@@ -292,7 +293,7 @@
 
         } catch (error) {
             console.error('초기화 실패:', error);
-            document.getElementById('loading').innerHTML = '<span class="error">데이터를 불러오는 데 실패했습니다. 웹 앱 배포 상태를 확인해주세요.</span>';
+            document.getElementById('loading').innerHTML = '<span class="error">데이터를 불러오는 데 실패했습니다. 웹 앱 배포 상태 및 권한(모든 사용자)을 확인해주세요.</span>';
         }
     }
 
