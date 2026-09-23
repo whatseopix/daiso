@@ -132,7 +132,7 @@
     <div class="header-flex">
         <div style="width: 70px;"></div>
         <h1>🛒 그냥 털었어 다이소</h1>
-        <div class="version-badge" id="versionBadge">v3.3 (2026.09.23)</div>
+        <div class="version-badge" id="versionBadge">v3.4 (2026.09.23)</div>
     </div>
     <div class="subtitle">지원2담당 럭키 드로우 이벤트</div>
 
@@ -152,13 +152,13 @@
     </div>
 
     <div class="footer-flex">
-        <span class="update-info">최종 빌드: 2026-09-23 12:10</span>
+        <span class="update-info">최종 빌드: 2026-09-23 12:15</span>
         <button class="reset-btn" onclick="resetData()">⚙️ 관리자 초기화</button>
     </div>
 </div>
 
 <script>
-    const APP_VERSION = "v3.3";
+    const APP_VERSION = "v3.4";
     const API_URL = "https://script.google.com/macros/s/AKfycbyJkFAFXubEACEwBIdi_GYu3Y-vOkcaayERm4mcOoZcQ94VVXXPSr3TLy7k3KbEbvX-/exec";
     let globalData = { participants: [], gifts: [] };
     let pendingGiftNumber = null;
@@ -291,7 +291,6 @@
         }
 
         pendingGiftNumber = giftNumber;
-        // 💡 상품 이름을 미리 보여주지 않고 비밀의 상자 형태로 가리도록 수정
         document.getElementById('modalGiftNum').textContent = `${giftNumber}번 상자`;
         document.getElementById('modalGiftName').textContent = "🎁 비밀의 랜덤박스 (선택 시 공개)";
         document.getElementById('giftConfirmModal').style.display = 'flex';
@@ -304,6 +303,11 @@
 
     function proceedWithSelectedGift() {
         const giftNumber = pendingGiftNumber;
+        
+        // 💡 서버 요청 전에 현재 클라이언트 데이터에서 해당 상품 이름을 미리 안전하게 백업해 둠
+        const targetGift = globalData.gifts.find(g => g.number === giftNumber);
+        const backupGiftName = targetGift ? targetGift.name : "상품";
+
         closeGiftModal();
 
         const nameSelect = document.getElementById('participantSelect');
@@ -328,11 +332,10 @@
             hideLoading();
 
             if(res.status === 'success') {
-                // 서버 응답으로 들어온 실제 상품 이름을 이때 비로소 쨘 하고 공개!
-                const confirmedGift = globalData.gifts.find(g => g.number === giftNumber);
-                const giftNameStr = confirmedGift ? confirmedGift.name : "상품";
+                // 백업해둔 상품 이름을 활용하여 확실하게 당첨 팝업 출력
+                const finalGiftName = res.giftName || backupGiftName;
 
-                alert(`🎉 축하합니다! [${selectedName}]님!\n\n${giftNumber}번 상자에서 [${giftNameStr}] 이(가) 당첨되었습니다! 🛒✨`);
+                alert(`🎉 축하합니다! [${selectedName}]님!\n\n${giftNumber}번 상자에서 [${finalGiftName}] 이(가) 당첨되었습니다! 🛒✨`);
                 
                 showLoading("최신 데이터를 동기화하는 중...");
                 loadData(false); 
