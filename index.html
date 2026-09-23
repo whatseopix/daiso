@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>쇼트트랙 선물 추첨 시스템</title>
+    <title>지원2담당 이벤트</title>
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -68,6 +68,15 @@
         button:hover {
             background-color: #2980b9;
         }
+        .admin-btn {
+            background-color: #95a5a6;
+            margin-top: 30px;
+            font-size: 14px;
+            padding: 8px;
+        }
+        .admin-btn:hover {
+            background-color: #7f8c8d;
+        }
         .loading, .message {
             text-align: center;
             font-size: 16px;
@@ -82,12 +91,31 @@
             color: #e74c3c;
             font-weight: bold;
         }
+        .result-card {
+            background: #e8f8f5;
+            border: 2px solid #27ae60;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+            margin-top: 20px;
+        }
+        .result-card h2 {
+            color: #27ae60;
+            margin-top: 0;
+            margin-bottom: 10px;
+        }
+        .result-gift-name {
+            font-size: 22px;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-top: 5px;
+        }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h1>🎁 럭키 드로우 추첨 시스템</h1>
+    <h1>🎁 지원2담당 럭키 드로우 이벤트</h1>
     <div id="loading" class="loading">데이터를 불러오는 중입니다...</div>
     
     <div id="app" style="display: none;">
@@ -99,25 +127,34 @@
         </div>
 
         <div class="form-group">
-            <label for="gift-select">남은 번호 선택</label>
+            <label for="gift-select">번호 선택 (선물 미리보기)</label>
             <select id="gift-select" onchange="updateGiftName()">
-                <option value="">-- 번호를 선택하세요 --</option>
+                <option value="">-- 번호와 선물을 선택하세요 --</option>
             </select>
         </div>
 
         <div class="form-group">
-            <label>선택된 선물</label>
+            <label>선택된 선물 미리보기</label>
             <div id="gift-name-display" class="gift-display">번호를 선택하면 선물이 표시됩니다</div>
         </div>
 
-        <button onclick="submitRecord()">추첨 완료 및 저장하기</button>
+        <button onclick="submitRecord()">최종 선택 및 응모하기</button>
         <div id="result-message" class="message"></div>
     </div>
+
+    <div id="success-card" style="display: none;" class="result-card">
+        <h2>🎉 응모가 완료되었습니다!</h2>
+        <p>당첨되신 선물은 다음과 같습니다:</p>
+        <div id="final-output-gift" class="result-gift-name"></div>
+    </div>
+
+    <!-- 관리자 초기화 버튼 -->
+    <button class="admin-btn" onclick="resetData()">⚙️ 관리자 데이터 초기화</button>
 </div>
 
 <script>
-    // 새로 발급된 구글 앱스 스크립트 웹 앱 URL 반영
-    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbz2SG93l5CiI6Lum2mWbmrhEKo-bHx8baRBpx1mgn6HbcPsSJQZK7SeUJJtv0UEMBiV/exec';
+    // 새 웹 앱 URL 반영
+    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyfl_5N8HNgZ2lRttGwxDgnculZZWdpnF-9SYIK1UZ3io68t_5D3P_0ZnoWUkid_BXl/exec';
     let globalGifts = [];
 
     async function initData() {
@@ -128,7 +165,9 @@
             const pSelect = document.getElementById('participant-select');
             const gSelect = document.getElementById('gift-select');
 
-            // 참가자 리스트 채우기
+            pSelect.innerHTML = '<option value="">-- 이름을 선택하세요 --</option>';
+            gSelect.innerHTML = '<option value="">-- 번호와 선물을 선택하세요 --</option>';
+
             data.participants.forEach(name => {
                 const opt = document.createElement('option');
                 opt.value = name;
@@ -136,12 +175,11 @@
                 pSelect.appendChild(opt);
             });
 
-            // 남은 선물 리스트 채우기
             globalGifts = data.gifts;
             globalGifts.forEach(gift => {
                 const opt = document.createElement('option');
                 opt.value = gift.number;
-                opt.textContent = `번호: ${gift.number}`;
+                opt.textContent = `번호 ${gift.number}번 - ${gift.name}`;
                 gSelect.appendChild(opt);
             });
 
@@ -165,7 +203,7 @@
 
         const found = globalGifts.find(g => String(g.number) === String(selectedNum));
         if (found) {
-            displayEl.textContent = found.name;
+            displayEl.textContent = `${found.number}번: ${found.name}`;
         } else {
             displayEl.textContent = '선물을 찾을 수 없습니다';
         }
@@ -203,18 +241,48 @@
                 })
             });
 
-            msgEl.textContent = '성공적으로 기록되었습니다! 🎉';
-            msgEl.className = 'message success';
-
-            // 1.5초 후 페이지 새로고침하여 목록 갱신
-            setTimeout(() => {
-                location.reload();
-            }, 1500);
+            document.getElementById('app').style.display = 'none';
+            document.getElementById('final-output-gift').textContent = giftNameDisplay;
+            document.getElementById('success-card').style.display = 'block';
 
         } catch (error) {
             console.error('기록 실패:', error);
             msgEl.textContent = '기록 중 오류가 발생했습니다.';
             msgEl.className = 'message error';
+        }
+    }
+
+    async function resetData() {
+        const password = prompt('관리자 비밀번호를 입력하세요:');
+        if (!password) return;
+
+        if (password !== '1234') {
+            alert('비밀번호가 올바르지 않습니다.');
+            return;
+        }
+
+        if (!confirm('정말로 모든 추첨 기록과 참가 상태를 초기화하시겠습니까?')) {
+            return;
+        }
+
+        try {
+            await fetch(SCRIPT_URL, {
+                method: 'POST',
+                mode: 'no-cors',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    action: 'reset',
+                    password: password
+                })
+            });
+
+            alert('성공적으로 초기화되었습니다.');
+            location.reload();
+        } catch (error) {
+            console.error('초기화 실패:', error);
+            alert('초기화 중 오류가 발생했습니다.');
         }
     }
 
