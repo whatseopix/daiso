@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>지원2담당 - 시크릿 럭키박스 이벤트</title>
+    <title>지원2담당 - 그냥 털었어 다이소 이벤트</title>
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -17,19 +17,19 @@
             max-width: 800px;
             margin: 30px auto;
             background: #141414;
-            border: 2px solid #d4af37;
+            border: 2px solid #ff3b30;
             padding: 35px;
             border-radius: 20px;
-            box-shadow: 0 0 30px rgba(212, 175, 55, 0.2);
+            box-shadow: 0 0 30px rgba(255, 59, 48, 0.2);
         }
         h1 {
             text-align: center;
-            color: #d4af37;
+            color: #ff3b30;
             margin-bottom: 10px;
-            font-size: 30px;
+            font-size: 28px;
             text-transform: uppercase;
-            letter-spacing: 2px;
-            text-shadow: 0 0 10px rgba(212, 175, 55, 0.4);
+            letter-spacing: 1px;
+            text-shadow: 0 0 10px rgba(255, 59, 48, 0.4);
         }
         .subtitle {
             text-align: center;
@@ -48,13 +48,13 @@
             display: block;
             margin-bottom: 10px;
             font-weight: 700;
-            color: #d4af37;
+            color: #ff6b6b;
             font-size: 16px;
         }
         select {
             width: 100%;
             padding: 14px;
-            border: 2px solid #d4af37;
+            border: 2px solid #ff3b30;
             border-radius: 8px;
             font-size: 16px;
             box-sizing: border-box;
@@ -63,12 +63,12 @@
             transition: all 0.3s;
         }
         select:focus {
-            border-color: #f3e5ab;
+            border-color: #ff6b6b;
             outline: none;
-            box-shadow: 0 0 8px rgba(212, 175, 55, 0.5);
+            box-shadow: 0 0 8px rgba(255, 59, 48, 0.5);
         }
         
-        /* 럭키박스 그리드 스타일 (블랙 & 골드) */
+        /* 럭키박스 그리드 스타일 */
         .box-grid-container {
             margin-top: 10px;
         }
@@ -82,8 +82,8 @@
         }
         .lucky-box {
             background: linear-gradient(135deg, #262626 0%, #111111 100%);
-            border: 2px solid #d4af37;
-            color: #d4af37;
+            border: 2px solid #ff3b30;
+            color: #ff6b6b;
             border-radius: 12px;
             padding: 20px 10px;
             text-align: center;
@@ -97,9 +97,9 @@
         }
         .lucky-box:hover {
             transform: translateY(-5px);
-            border-color: #f3e5ab;
+            border-color: #ff6b6b;
             background: linear-gradient(135deg, #333333 0%, #1a1a1a 100%);
-            box-shadow: 0 0 15px rgba(212, 175, 55, 0.4);
+            box-shadow: 0 0 15px rgba(255, 59, 48, 0.4);
         }
         .lucky-box.selected {
             background: #111;
@@ -118,16 +118,16 @@
             letter-spacing: 1px;
         }
         .lucky-box .box-owner {
-            font-size: 11px;
+            font-size: 12px;
             margin-top: 6px;
-            color: #e74c3c;
-            font-weight: normal;
+            color: #ff9f43;
+            font-weight: bold;
         }
         .lucky-box.selected .box-owner {
-            color: #888;
+            color: #ff5252;
         }
 
-        /* 당첨 축하 팝업 모달 (골드 테마) */
+        /* 당첨 축하 팝업 모달 */
         .modal {
             display: none;
             position: fixed;
@@ -143,13 +143,13 @@
         }
         .modal-content {
             background: #1a1a1a;
-            border: 2px solid #d4af37;
+            border: 2px solid #ff3b30;
             padding: 40px 30px;
             border-radius: 20px;
             text-align: center;
             max-width: 420px;
             width: 90%;
-            box-shadow: 0 0 40px rgba(212, 175, 55, 0.4);
+            box-shadow: 0 0 40px rgba(255, 59, 48, 0.4);
             animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
         @keyframes popIn {
@@ -157,25 +157,25 @@
             100% { transform: scale(1); opacity: 1; }
         }
         .modal-content h2 {
-            color: #d4af37;
+            color: #ff3b30;
             margin-top: 0;
             font-size: 26px;
-            text-shadow: 0 0 10px rgba(212, 175, 55, 0.5);
+            text-shadow: 0 0 10px rgba(255, 59, 48, 0.5);
         }
         .modal-gift-name {
-            font-size: 22px;
+            font-size: 20px;
             font-weight: bold;
             color: #fff;
             margin: 25px 0;
             background: #0d0d0d;
-            border: 1px solid #d4af37;
+            border: 1px solid #ff3b30;
             padding: 20px;
             border-radius: 12px;
-            box-shadow: inset 0 0 10px rgba(212, 175, 55, 0.2);
+            box-shadow: inset 0 0 10px rgba(255, 59, 48, 0.2);
         }
         .modal-btn {
-            background: linear-gradient(135deg, #d4af37 0%, #aa820a 100%);
-            color: #000;
+            background: linear-gradient(135deg, #ff3b30 0%, #c0392b 100%);
+            color: #fff;
             border: none;
             padding: 14px 25px;
             font-size: 16px;
@@ -204,8 +204,8 @@
             transition: all 0.2s;
         }
         .admin-btn:hover {
-            color: #d4af37;
-            border-color: #d4af37;
+            color: #ff3b30;
+            border-color: #ff3b30;
         }
         .loading, .message {
             text-align: center;
@@ -222,10 +222,10 @@
 <body>
 
 <div class="container">
-    <h1>🎁 SECRET LUCKY BOX</h1>
-    <div class="subtitle">지원2담당 시크릿 럭키 드로우 이벤트</div>
+    <h1>🛒 그냥 털었어 다이소</h1>
+    <div class="subtitle">지원2담당 럭키 드로우 이벤트</div>
     
-    <div id="loading" class="loading">럭키박스 데이터를 불러오는 중입니다...</div>
+    <div id="loading" class="loading">다이소 상품 데이터를 불러오는 중입니다...</div>
     
     <div id="app" style="display: none;">
         <!-- 1단계: 참가자 선택 -->
@@ -238,7 +238,7 @@
 
         <!-- 2단계: 럭키박스 선택 그리드 (1~14번) -->
         <div class="step-box" id="grid-section" style="opacity: 0.4; pointer-events: none;">
-            <label>✨ STEP 2. 행운의 럭키박스를 직접 터치하여 선택하세요</label>
+            <label>🛍️ STEP 2. 마음에 드는 상품 번호를 터치하여 선택하세요</label>
             <div class="box-grid-container">
                 <div id="box-grid" class="box-grid">
                     <!-- 자바스크립트로 럭키박스 카드들이 동적으로 생성됩니다 -->
@@ -252,9 +252,9 @@
     <!-- 당첨 축하 팝업 모달 -->
     <div id="success-modal" class="modal">
         <div class="modal-content">
-            <h2>🎉 SECRET REVEAL! 🎉</h2>
-            <p>축하합니다! 당신이 뽑은 선물입니다</p>
-            <div id="modal-gift-display" class="modal-gift-name">선물 이름</div>
+            <h2>🎉 득템 성공! 🎉</h2>
+            <p>축하합니다! 당신이 뽑은 다이소 상품입니다</p>
+            <div id="modal-gift-display" class="modal-gift-name">상품 이름</div>
             <button class="modal-btn" onclick="closeModalAndReload()">확인 및 완료</button>
         </div>
     </div>
@@ -324,22 +324,22 @@
                 card.classList.add('selected');
                 card.innerHTML = `
                     <div class="box-icon">🔒</div>
-                    <div class="box-num">BOX ${gift.number}</div>
-                    <div class="box-owner">OPENED (${gift.empName || '선택됨'})</div>
+                    <div class="box-num">ITEM ${gift.number}</div>
+                    <div class="box-owner">👤 ${gift.empName}</div>
                 `;
             } else {
                 card.innerHTML = `
-                    <div class="box-icon">🎁</div>
-                    <div class="box-num">BOX ${gift.number}</div>
-                    <div class="box-owner">OPEN</div>
+                    <div class="box-icon">🛍️</div>
+                    <div class="box-num">ITEM ${gift.number}</div>
+                    <div class="box-owner">PICK ME</div>
                 `;
-                card.onclick = () => selectGiftBox(gift.number, gift.name);
+                card.onclick = () => selectGiftBox(gift.number, gift.name, card);
             }
             gridEl.appendChild(card);
         });
     }
 
-    async function selectGiftBox(giftNumber, giftName) {
+    async function selectGiftBox(giftNumber, giftName, cardElement) {
         const name = document.getElementById('participant-select').value;
         if (!name) {
             alert('먼저 STEP 1에서 참가자 본인 이름을 선택해주세요!');
@@ -347,9 +347,18 @@
             return;
         }
 
-        if (!confirm(`[${name}] 님, [BOX ${giftNumber}]를 선택하시겠습니까?\n한 번 선택한 박스는 변경할 수 없습니다.`)) {
+        if (!confirm(`[${name}] 님, [ITEM ${giftNumber}] 상품을 선택하시겠습니까?\n한 번 선택한 상품은 변경할 수 없습니다.`)) {
             return;
         }
+
+        // 즉시 화면에서 비활성화 처리 및 선택자 이름 반영
+        cardElement.className = 'lucky-box selected';
+        cardElement.innerHTML = `
+            <div class="box-icon">🔒</div>
+            <div class="box-num">ITEM ${giftNumber}</div>
+            <div class="box-owner">👤 ${name}</div>
+        `;
+        cardElement.onclick = null;
 
         document.getElementById('loading').style.display = 'block';
         document.getElementById('app').style.opacity = '0.3';
@@ -370,7 +379,8 @@
 
             // 당첨 축하 팝업 모달 표시
             document.getElementById('loading').style.display = 'none';
-            document.getElementById('modal-gift-display').textContent = `BOX ${giftNumber} : ${giftName}`;
+            document.getElementById('app').style.opacity = '1';
+            document.getElementById('modal-gift-display').textContent = `ITEM ${giftNumber} : ${giftName}`;
             document.getElementById('success-modal').style.display = 'flex';
 
         } catch (error) {
