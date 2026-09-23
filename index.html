@@ -88,7 +88,7 @@
     <div class="header-flex">
         <div style="width: 70px;"></div>
         <h1>🛒 그냥 털었어 다이소</h1>
-        <div class="version-badge" id="versionBadge">v2.7 (2026.09.23)</div>
+        <div class="version-badge" id="versionBadge">v2.8 (2026.09.23)</div>
     </div>
     <div class="subtitle">지원2담당 럭키 드로우 이벤트</div>
 
@@ -108,13 +108,13 @@
     </div>
 
     <div class="footer-flex">
-        <span class="update-info">최종 빌드: 2026-09-23 11:30</span>
+        <span class="update-info">최종 빌드: 2026-09-23 11:35</span>
         <button class="reset-btn" onclick="resetData()">⚙️ 관리자 초기화</button>
     </div>
 </div>
 
 <script>
-    const APP_VERSION = "v2.7";
+    const APP_VERSION = "v2.8";
     const API_URL = "https://script.google.com/macros/s/AKfycbyJkFAFXubEACEwBIdi_GYu3Y-vOkcaayERm4mcOoZcQ94VVXXPSr3TLy7k3KbEbvX-/exec";
     let globalData = { participants: [], gifts: [] };
 
@@ -157,18 +157,24 @@
             });
     }
 
-    // 참가자 목록 렌더링
+    // 참가자 목록 렌더링 (이미 선택한 사람은 제외)
     function initParticipants() {
         const select = document.getElementById('participantSelect');
         const currentVal = select.value;
         select.innerHTML = '<option value="">-- 이름을 선택하세요 --</option>';
         
+        // 이미 상품을 선택한 사람들의 이름 세트(Set) 생성
+        const selectedEmpNames = new Set(globalData.gifts.filter(g => g.selected).map(g => g.empName));
+
         globalData.participants.forEach(p => {
-            const opt = document.createElement('option');
-            opt.value = p.name;
-            opt.textContent = p.name;
-            if(p.name === currentVal) opt.selected = true;
-            select.appendChild(opt);
+            // 이미 선택을 완료한 사용자는 드롭다운 목록에서 제외
+            if (!selectedEmpNames.has(p.name)) {
+                const opt = document.createElement('option');
+                opt.value = p.name;
+                opt.textContent = p.name;
+                if(p.name === currentVal) opt.selected = true;
+                select.appendChild(opt);
+            }
         });
     }
 
@@ -253,7 +259,6 @@
             return;
         }
 
-        // 요청하신 문구로 변경
         showLoading("선택하신 번호를 처리중입니다...");
 
         fetch(API_URL, {
@@ -296,7 +301,6 @@
             method: 'POST',
             body: JSON.stringify({ action: 'reset', password: pwd })
         })
-        .then(res => res.json())
         .then(res => {
             if(res.status === 'success') {
                 alert("초기화되었습니다.");
