@@ -74,6 +74,37 @@
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
+
+        /* 상품 선택 시 크게 보여주는 커스텀 확인 모달 스타일 */
+        #giftConfirmModal {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            z-index: 9998;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        .modal-content {
+            background-color: #222;
+            border: 2px solid #ff4d4d;
+            border-radius: 12px;
+            width: 100%;
+            max-width: 400px;
+            padding: 25px;
+            text-align: center;
+            box-shadow: 0 0 25px rgba(255, 77, 77, 0.4);
+        }
+        .modal-title { font-size: 14px; color: #aaa; margin-bottom: 10px; }
+        .modal-gift-num { font-size: 22px; color: #ff8080; font-weight: bold; margin-bottom: 5px; }
+        .modal-gift-name { font-size: 20px; color: #fff; font-weight: bold; margin-bottom: 25px; background-color: #333; padding: 12px; border-radius: 8px; word-break: break-all; }
+        .modal-btn-group { display: flex; gap: 10px; }
+        .modal-btn { flex: 1; padding: 12px; border-radius: 6px; font-size: 15px; font-weight: bold; cursor: pointer; border: none; }
+        .modal-btn.cancel { background-color: #444; color: #ccc; }
+        .modal-btn.cancel:hover { background-color: #555; }
+        .modal-btn.confirm { background-color: #ff4d4d; color: #fff; }
+        .modal-btn.confirm:hover { background-color: #ff3333; }
     </style>
 </head>
 <body>
@@ -84,11 +115,24 @@
     <div id="loadingText">구글 시트에서 데이터를 불러오는 중...</div>
 </div>
 
+<!-- 상품 선택 확인 커스텀 모달 -->
+<div id="giftConfirmModal">
+    <div class="modal-content">
+        <div class="modal-title">🎁 선택하신 상품 확인</div>
+        <div id="modalGiftNum" class="modal-gift-num">0번</div>
+        <div id="modalGiftName" class="modal-gift-name">상품 이름</div>
+        <div class="modal-btn-group">
+            <button class="modal-btn cancel" onclick="closeGiftModal()">취소</button>
+            <button class="modal-btn confirm" onclick="proceedWithSelectedGift()">이 상품으로 선택하기</button>
+        </div>
+    </div>
+</div>
+
 <div class="container">
     <div class="header-flex">
         <div style="width: 70px;"></div>
         <h1>🛒 그냥 털었어 다이소</h1>
-        <div class="version-badge" id="versionBadge">v3.0 (2026.09.23)</div>
+        <div class="version-badge" id="versionBadge">v3.1 (2026.09.23)</div>
     </div>
     <div class="subtitle">지원2담당 럭키 드로우 이벤트</div>
 
@@ -108,15 +152,16 @@
     </div>
 
     <div class="footer-flex">
-        <span class="update-info">최종 빌드: 2026-09-23 11:45</span>
+        <span class="update-info">최종 빌드: 2026-09-23 11:50</span>
         <button class="reset-btn" onclick="resetData()">⚙️ 관리자 초기화</button>
     </div>
 </div>
 
 <script>
-    const APP_VERSION = "v3.0";
+    const APP_VERSION = "v3.1";
     const API_URL = "https://script.google.com/macros/s/AKfycbyJkFAFXubEACEwBIdi_GYu3Y-vOkcaayERm4mcOoZcQ94VVXXPSr3TLy7k3KbEbvX-/exec";
     let globalData = { participants: [], gifts: [] };
+    let pendingGiftNumber = null; // 모달에서 선택 대기 중인 상품 번호
 
     console.log(`[Daiso Event] Client Script Loaded - Version: ${APP_VERSION}`);
 
@@ -201,7 +246,7 @@
             card.innerHTML = html;
 
             if(!gift.selected) {
-                card.onclick = () => selectGift(gift.number);
+                card.onclick = () => openGiftModal(gift.number);
             }
             container.appendChild(card);
         });
@@ -232,8 +277,8 @@
         }
     }
 
-    // 상품 선택 실행
-    function selectGift(giftNumber) {
+    // 상품 터치 시 크게 보여주는 모달 열기
+    function openGiftModal(giftNumber) {
         const nameSelect = document.getElementById('participantSelect');
         const selectedName = nameSelect.value;
 
@@ -249,6 +294,29 @@
             return;
         }
 
+        const gift = globalData.gifts.find(g => g.number === giftNumber);
+        if(!gift) return;
+
+        pendingGiftNumber = giftNumber;
+        document.getElementById('modalGiftNum').textContent = `${gift.number}번 상품`;
+        document.getElementById('modalGiftName').textContent = gift.name;
+        document.getElementById('giftConfirmModal').style.display = 'flex';
+    }
+
+    // 모달 닫기
+    function closeGiftModal() {
+        pendingGiftNumber = null;
+        document.getElementById('giftConfirmModal').style.display = 'none';
+    }
+
+    // 모달에서 '이 상품으로 선택하기'를 눌렀을 때 사번 입력 및 서버 요청 진행
+    function proceedWithSelectedGift() {
+        const giftNumber = pendingGiftNumber;
+        closeGiftModal();
+
+        const nameSelect = document.getElementById('participantSelect');
+        const selectedName = nameSelect.value;
+
         const inputPw = prompt(`[${selectedName}]님, 본인의 사번(PW)을 입력해주세요:`);
         if(inputPw === null) return;
 
@@ -257,7 +325,6 @@
             return;
         }
 
-        // 로딩 오버레이 표시
         showLoading("선택하신 번호를 처리중입니다...");
 
         fetch(API_URL, {
@@ -266,7 +333,6 @@
         })
         .then(res => res.json())
         .then(res => {
-            // 응답을 받으면 우선 로딩 화면을 숨김
             hideLoading();
 
             if(res.status === 'success') {
@@ -274,7 +340,6 @@
                 showLoading("최신 데이터를 동기화하는 중...");
                 loadData(false); 
             } else if(res.status === 'invalid_pw') {
-                // PW가 틀렸을 경우 안내 멘트 출력 보완
                 alert("사번(PW)이 일치하지 않습니다. 올바른 사번을 입력해주세요.");
             } else if(res.status === 'already_selected') {
                 alert("아쉽습니다! 그 사이에 다른 사람이 먼저 선택한 상품입니다.");
