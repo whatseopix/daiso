@@ -1,130 +1,263 @@
-function doGet(e) {
-  try {
-    const ss = SpreadsheetApp.getActiveSpreadsheet();
-    
-    // 1. 참가자 시트 확인
-    const pSheet = ss.getSheetByName("참가자");
-    let participants = [];
-    if (!pSheet) {
-      throw new Error("['참가자'] 시트를 찾을 수 없습니다. 시트 이름을 확인해주세요.");
-    }
-    const pValues = pSheet.getDataRange().getValues();
-    for (let i = 1; i < pValues.length; i++) {
-      if (pValues[i][0] !== "" && pValues[i][0] !== null) {
-        participants.push(String(pValues[i][0]).trim());
-      }
-    }
-    
-    // 2. 상품 시트 확인
-    const gSheet = ss.getSheetByName("상품");
-    let gifts = [];
-    if (!gSheet) {
-      throw new Error("['상품'] 시트를 찾을 수 없습니다. 시트 이름을 확인해주세요.");
-    }
-    const gValues = gSheet.getDataRange().getValues();
-    for (let i = 1; i < gValues.length; i++) {
-      const num = gValues[i][0];
-      const name = gValues[i][1];
-      const selectedVal = gValues[i][2];
-      const empName = gValues[i][3];
-      
-      if (num !== "" && num !== null) {
-        const isSelected = (selectedVal === true || selectedVal === 'O' || selectedVal === 'o' || (selectedVal !== "" && selectedVal !== null && selectedVal !== false));
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>그냥 털었어 다이소 - 럭키 드로우 이벤트</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Malgun Gothic', sans-serif; }
+        body { background-color: #121212; color: #fff; display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 20px; }
+        .container { background-color: #1e1e1e; border: 2px solid #ff4d4d; border-radius: 12px; width: 100%; max-width: 600px; padding: 30px; box-shadow: 0 0 20px rgba(255, 77, 77, 0.3); position: relative; }
         
-        gifts.push({
-          number: num,
-          name: name || "상품",
-          selected: isSelected,
-          empName: empName || ""
-        });
-      }
-    }
-
-    const result = { participants: participants, gifts: gifts };
-    
-    return ContentService.createTextOutput(JSON.stringify(result))
-      .setMimeType(ContentService.MimeType.JSON);
-
-  } catch (err) {
-    return ContentService.createTextOutput(JSON.stringify({ error: err.toString() }))
-      .setMimeType(ContentService.MimeType.JSON);
-  }
-}
-
-function doPost(e) {
-  const lock = LockService.getScriptLock();
-  try {
-    // 동시성 제어: 동시에 요청이 들어와도 순차적으로 처리하도록 락(Lock) 획득 (최대 10초 대기)
-    if (!lock.tryLock(10000)) {
-      return ContentService.createTextOutput(JSON.stringify({ status: 'error', message: '요청이 너무 많습니다. 잠시 후 다시 시도해주세요.' }))
-        .setMimeType(ContentService.MimeType.JSON);
-    }
-    
-    const contents = JSON.parse(e.postData.contents);
-    const ss = SpreadsheetApp.getActiveSpreadsheet();
-    
-    if (contents.action === 'reset') {
-      if (contents.password === '1234') {
-        const gSheet = ss.getSheetByName("상품");
-        const lastRow = gSheet.getLastRow();
-        if (lastRow > 1) {
-          gSheet.getRange(2, 3, lastRow - 1, 3).clearContent();
+        .header-flex { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 5px; }
+        h1 { text-align: center; color: #ff4d4d; font-size: 24px; flex-grow: 1; }
+        
+        .version-badge {
+            background-color: #2a1a1a;
+            border: 1px solid #ff4d4d;
+            color: #ff8080;
+            font-size: 11px;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-weight: bold;
+            white-space: nowrap;
         }
-        lock.releaseLock();
-        return ContentService.createTextOutput(JSON.stringify({ status: 'success' })).setMimeType(ContentService.MimeType.JSON);
-      } else {
-        lock.releaseLock();
-        return ContentService.createTextOutput(JSON.stringify({ status: 'error', message: '비밀번호가 틀렸습니다.' }))
-          .setMimeType(ContentService.MimeType.JSON);
-      }
+
+        .subtitle { text-align: center; color: #aaa; font-size: 14px; margin-bottom: 25px; }
+        
+        .step-box { background-color: #2a2a2a; border-radius: 8px; padding: 20px; margin-bottom: 20px; }
+        .step-title { font-size: 15px; color: #ff8080; margin-bottom: 12px; font-weight: bold; }
+        
+        select { width: 100%; padding: 12px; background-color: #121212; color: #fff; border: 1px solid #444; border-radius: 6px; font-size: 16px; outline: none; }
+        select:focus { border-color: #ff4d4d; }
+
+        .gift-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 10px; max-height: 350px; overflow-y: auto; padding-right: 5px; }
+        .gift-card { background-color: #333; border: 2px solid #444; border-radius: 8px; padding: 16px 8px; text-align: center; cursor: pointer; transition: all 0.2s; display: flex; flex-direction: column; justify-content: center; min-height: 75px; }
+        .gift-card:hover:not(.disabled) { border-color: #ff4d4d; background-color: #3a2222; transform: translateY(-2px); }
+        .gift-card.selected { background-color: #2c2c2c; border-color: #555; opacity: 0.6; cursor: not-allowed; }
+        
+        .gift-num { font-size: 20px; font-weight: bold; color: #ff8080; }
+        .gift-owner { font-size: 12px; color: #ff4d4d; margin-top: 4px; font-weight: bold; }
+
+        .footer-flex { display: flex; justify-content: space-between; align-items: center; margin-top: 10px; }
+        .update-info { font-size: 11px; color: #777; }
+        .reset-btn { background: none; border: 1px solid #555; color: #aaa; padding: 6px 12px; border-radius: 4px; font-size: 12px; cursor: pointer; }
+        .reset-btn:hover { border-color: #ff4d4d; color: #ff4d4d; }
+
+        .loading { text-align: center; color: #888; padding: 20px; }
+        .my-selection-notice { font-size: 13px; color: #4da6ff; margin-top: 8px; font-weight: bold; display: none; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header-flex">
+        <div style="width: 70px;"></div>
+        <h1>🛒 그냥 털었어 다이소</h1>
+        <div class="version-badge" id="versionBadge">v2.1 (2026.09.23)</div>
+    </div>
+    <div class="subtitle">지원2담당 럭키 드로우 이벤트</div>
+
+    <!-- STEP 1 -->
+    <div class="step-box">
+        <div class="step-title">👤 STEP 1. 참가자 본인 이름을 선택하세요</div>
+        <select id="participantSelect" onchange="onParticipantChange()">
+            <option value="">-- 이름을 선택하세요 --</option>
+        </select>
+        <div id="mySelectionNotice" class="my-selection-notice"></div>
+    </div>
+
+    <!-- STEP 2 -->
+    <div class="step-box">
+        <div class="step-title">🛍️ STEP 2. 마음에 드는 상품 번호를 터치하여 선택하세요</div>
+        <div id="giftContainer" class="loading">데이터를 불러오는 중입니다...</div>
+    </div>
+
+    <div class="footer-flex">
+        <span class="update-info">최종 빌드: 2026-09-23 10:48</span>
+        <button class="reset-btn" onclick="resetData()">⚙️ 관리자 초기화</button>
+    </div>
+</div>
+
+<script>
+    const APP_VERSION = "v2.1";
+    const API_URL = "https://script.google.com/macros/s/AKfycbxPK2OOXWqfYyCgXjTrP8WI6sGNzDV-0UlGWMETRSJOQa558L6j5VGT_1_wWWrKqGZe/exec";
+    let globalData = { participants: [], gifts: [] };
+
+    console.log(`[Daiso Event] Client Script Loaded - Version: ${APP_VERSION}`);
+
+    // 데이터 불러오기
+    function loadData(isSilent = false) {
+        fetch(API_URL)
+            .then(response => response.json())
+            .then(data => {
+                if(data.error) {
+                    if(!isSilent) alert("데이터 로드 오류: " + data.error);
+                    return;
+                }
+                globalData = data;
+                initParticipants();
+                renderGifts();
+                checkMySelection();
+            })
+            .catch(err => {
+                console.error(err);
+                if(!isSilent) {
+                    document.getElementById('giftContainer').innerHTML = '<span style="color:#ff4d4d;">데이터를 불러오지 못했습니다.</span>';
+                }
+            });
     }
 
-    const giftNumber = contents.giftNumber;
-    const name = contents.name;
-    
-    const gSheet = ss.getSheetByName("상품");
-    const gValues = gSheet.getDataRange().getValues();
-    
-    let targetRow = -1;
-    let isAlreadySelected = false;
-
-    for (let i = 1; i < gValues.length; i++) {
-      if (String(gValues[i][0]) === String(giftNumber)) {
-        targetRow = i + 1;
-        const selectedVal = gValues[i][2];
-        isAlreadySelected = (selectedVal === true || selectedVal === 'O' || selectedVal === 'o' || (selectedVal !== "" && selectedVal !== null && selectedVal !== false));
-        break;
-      }
+    // 참가자 목록 렌더링
+    function initParticipants() {
+        const select = document.getElementById('participantSelect');
+        const currentVal = select.value;
+        select.innerHTML = '<option value="">-- 이름을 선택하세요 --</option>';
+        
+        globalData.participants.forEach(p => {
+            const opt = document.createElement('option');
+            opt.value = p.name;
+            opt.textContent = p.name;
+            if(p.name === currentVal) opt.selected = true;
+            select.appendChild(opt);
+        });
     }
 
-    if (targetRow === -1) {
-      lock.releaseLock();
-      return ContentService.createTextOutput(JSON.stringify({ status: 'error', message: '존재하지 않는 상품 번호입니다.' }))
-        .setMimeType(ContentService.MimeType.JSON);
+    // 상품 목록 렌더링
+    function renderGifts() {
+        const container = document.getElementById('giftContainer');
+        if(container.classList.contains('loading')) {
+            container.innerHTML = '';
+            container.className = 'gift-grid';
+        }
+
+        container.innerHTML = '';
+        globalData.gifts.forEach(gift => {
+            const card = document.createElement('div');
+            card.className = `gift-card ${gift.selected ? 'selected' : ''}`;
+            
+            let html = `<div class="gift-num">${gift.number}번</div>`;
+            if(gift.selected) {
+                html += `<div class="gift-owner">${gift.empName}</div>`;
+            }
+            card.innerHTML = html;
+
+            if(!gift.selected) {
+                card.onclick = () => selectGift(gift.number);
+            }
+            container.appendChild(card);
+        });
     }
 
-    // 서버 단에서 이미 선택되었는지 철저하게 재검증
-    if (isAlreadySelected) {
-      lock.releaseLock();
-      return ContentService.createTextOutput(JSON.stringify({ status: 'already_selected' }))
-        .setMimeType(ContentService.MimeType.JSON);
+    function onParticipantChange() {
+        checkMySelection();
     }
-    
-    // 정상 선택 기록
-    const today = Utilities.formatDate(new Date(), "Asia/Seoul", "yyyy. M. d");
-    gSheet.getRange(targetRow, 3).setValue("O");
-    gSheet.getRange(targetRow, 4).setValue(name);
-    gSheet.getRange(targetRow, 5).setValue(today);
-    
-    lock.releaseLock();
-    return ContentService.createTextOutput(JSON.stringify({ status: 'success' }))
-      .setMimeType(ContentService.MimeType.JSON);
 
-  } catch (err) {
-    if (lock.hasLock()) {
-      lock.releaseLock();
+    function checkMySelection() {
+        const nameSelect = document.getElementById('participantSelect');
+        const selectedName = nameSelect.value;
+        const noticeDiv = document.getElementById('mySelectionNotice');
+
+        if (!selectedName) {
+            noticeDiv.style.display = 'none';
+            noticeDiv.textContent = '';
+            return;
+        }
+
+        const alreadyPicked = globalData.gifts.find(g => g.selected && g.empName === selectedName);
+        if (alreadyPicked) {
+            noticeDiv.style.display = 'block';
+            noticeDiv.textContent = `ℹ️ [${selectedName}]님은 이미 ${alreadyPicked.number}번 상품을 선택하셨습니다. (추가 선택 불가)`;
+        } else {
+            noticeDiv.style.display = 'none';
+            noticeDiv.textContent = '';
+        }
     }
-    return ContentService.createTextOutput(JSON.stringify({ status: 'error', message: err.toString() }))
-      .setMimeType(ContentService.MimeType.JSON);
-  }
-}
+
+    // 상품 선택 실행 (사번 입력 인증 추가)
+    function selectGift(giftNumber) {
+        const nameSelect = document.getElementById('participantSelect');
+        const selectedName = nameSelect.value;
+
+        if(!selectedName) {
+            alert("먼저 STEP 1에서 본인 이름을 선택해주세요!");
+            nameSelect.focus();
+            return;
+        }
+
+        const alreadyPicked = globalData.gifts.find(g => g.selected && g.empName === selectedName);
+        if (alreadyPicked) {
+            alert(`[${selectedName}]님은 이미 ${alreadyPicked.number}번 상품을 선택하셨습니다!\n1인당 1개의 상품만 선택할 수 있습니다.`);
+            return;
+        }
+
+        // 사번 입력 프롬프트 띄우기
+        const inputPw = prompt(`[${selectedName}]님, 본인의 사번(PW)을 입력해주세요:`);
+        if(inputPw === null) return; // 취소 버튼 누름
+
+        if(!inputPw.trim()) {
+            alert("사번을 입력하셔야 합니다.");
+            return;
+        }
+
+        // 서버 전송 (사번 인증 및 선택 처리)
+        fetch(API_URL, {
+            method: 'POST',
+            body: JSON.stringify({ name: selectedName, pw: inputPw.trim(), giftNumber: giftNumber })
+        })
+        .then(res => res.json())
+        .then(res => {
+            if(res.status === 'success') {
+                alert("성공적으로 선택되었습니다!");
+                loadData(false);
+            } else if(res.status === 'invalid_pw') {
+                alert("사번(PW)이 일치하지 않습니다. 올바른 사번을 입력해주세요.");
+            } else if(res.status === 'already_selected') {
+                alert("아쉽습니다! 그 사이에 다른 사람이 먼저 선택한 상품입니다.");
+                loadData(false);
+            } else {
+                alert("오류가 발생했습니다: " + (res.message || '알 수 없는 오류'));
+                loadData(false);
+            }
+        })
+        .catch(err => {
+            console.error(err);
+            alert("통신 중 오류가 발생했습니다.");
+            loadData(false);
+        });
+    }
+
+    // 관리자 초기화
+    function resetData() {
+        const pwd = prompt("관리자 비밀번호를 입력하세요:");
+        if(!pwd) return;
+
+        fetch(API_URL, {
+            method: 'POST',
+            body: JSON.stringify({ action: 'reset', password: pwd })
+        })
+        .then(res => res.json())
+        .then(res => {
+            if(res.status === 'success') {
+                alert("초기화되었습니다.");
+                loadData(false);
+            } else {
+                alert(res.message || "비밀번호가 틀렸거나 초기화에 실패했습니다.");
+            }
+        })
+        .catch(err => {
+            console.error(err);
+            alert("통신 중 오류가 발생했습니다.");
+        });
+    }
+
+    window.onload = function() {
+        loadData(false);
+        setInterval(() => {
+            loadData(true);
+        }, 5000);
+    };
+</script>
+
+</body>
+</html>
