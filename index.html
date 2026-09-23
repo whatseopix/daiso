@@ -32,11 +32,12 @@
         select:focus { border-color: #ff4d4d; }
 
         .gift-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 10px; max-height: 350px; overflow-y: auto; padding-right: 5px; }
-        .gift-card { background-color: #333; border: 2px solid #444; border-radius: 8px; padding: 16px 8px; text-align: center; cursor: pointer; transition: all 0.2s; display: flex; flex-direction: column; justify-content: center; min-height: 75px; }
-        .gift-card:hover:not(.disabled) { border-color: #ff4d4d; background-color: #3a2222; transform: translateY(-2px); }
-        .gift-card.selected { background-color: #2c2c2c; border-color: #555; opacity: 0.6; cursor: not-allowed; }
+        .gift-card { background-color: #333; border: 2px solid #444; border-radius: 8px; padding: 14px 8px; text-align: center; cursor: pointer; transition: all 0.2s; display: flex; flex-direction: column; justify-content: center; min-height: 85px; }
+        .gift-card:hover:not(.selected) { border-color: #ff4d4d; background-color: #3a2222; transform: translateY(-2px); }
+        .gift-card.selected { background-color: #2c2c2c; border-color: #555; opacity: 0.85; cursor: not-allowed; }
         
-        .gift-num { font-size: 20px; font-weight: bold; color: #ff8080; }
+        .gift-num { font-size: 18px; font-weight: bold; color: #ff8080; }
+        .gift-name { font-size: 11px; color: #ccc; margin-top: 3px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
         .gift-owner { font-size: 12px; color: #ff4d4d; margin-top: 4px; font-weight: bold; }
 
         .footer-flex { display: flex; justify-content: space-between; align-items: center; margin-top: 10px; }
@@ -54,7 +55,7 @@
     <div class="header-flex">
         <div style="width: 70px;"></div>
         <h1>🛒 그냥 털었어 다이소</h1>
-        <div class="version-badge" id="versionBadge">v2.1 (2026.09.23)</div>
+        <div class="version-badge" id="versionBadge">v2.2 (2026.09.23)</div>
     </div>
     <div class="subtitle">지원2담당 럭키 드로우 이벤트</div>
 
@@ -74,13 +75,13 @@
     </div>
 
     <div class="footer-flex">
-        <span class="update-info">최종 빌드: 2026-09-23 10:48</span>
+        <span class="update-info">최종 빌드: 2026-09-23 10:52</span>
         <button class="reset-btn" onclick="resetData()">⚙️ 관리자 초기화</button>
     </div>
 </div>
 
 <script>
-    const APP_VERSION = "v2.1";
+    const APP_VERSION = "v2.2";
     const API_URL = "https://script.google.com/macros/s/AKfycbxPK2OOXWqfYyCgXjTrP8WI6sGNzDV-0UlGWMETRSJOQa558L6j5VGT_1_wWWrKqGZe/exec";
     let globalData = { participants: [], gifts: [] };
 
@@ -123,7 +124,7 @@
         });
     }
 
-    // 상품 목록 렌더링
+    // 상품 목록 렌더링 (선택 완료 시 상품명과 당첨자명 함께 표시)
     function renderGifts() {
         const container = document.getElementById('giftContainer');
         if(container.classList.contains('loading')) {
@@ -137,9 +138,16 @@
             card.className = `gift-card ${gift.selected ? 'selected' : ''}`;
             
             let html = `<div class="gift-num">${gift.number}번</div>`;
+            
+            // 선택된 상품인 경우 상품명과 소유자(이름) 공개
             if(gift.selected) {
+                html += `<div class="gift-name" title="${gift.name}">${gift.name}</div>`;
                 html += `<div class="gift-owner">${gift.empName}</div>`;
+            } else {
+                // 선택 전에는 번호만 깔끔하게 노출
+                html += `<div class="gift-name">미선택</div>`;
             }
+            
             card.innerHTML = html;
 
             if(!gift.selected) {
@@ -167,14 +175,14 @@
         const alreadyPicked = globalData.gifts.find(g => g.selected && g.empName === selectedName);
         if (alreadyPicked) {
             noticeDiv.style.display = 'block';
-            noticeDiv.textContent = `ℹ️ [${selectedName}]님은 이미 ${alreadyPicked.number}번 상품을 선택하셨습니다. (추가 선택 불가)`;
+            noticeDiv.textContent = `ℹ️ [${selectedName}]님은 이미 ${alreadyPicked.number}번(${alreadyPicked.name}) 상품을 선택하셨습니다.`;
         } else {
             noticeDiv.style.display = 'none';
             noticeDiv.textContent = '';
         }
     }
 
-    // 상품 선택 실행 (사번 입력 인증 추가)
+    // 상품 선택 실행
     function selectGift(giftNumber) {
         const nameSelect = document.getElementById('participantSelect');
         const selectedName = nameSelect.value;
@@ -187,20 +195,18 @@
 
         const alreadyPicked = globalData.gifts.find(g => g.selected && g.empName === selectedName);
         if (alreadyPicked) {
-            alert(`[${selectedName}]님은 이미 ${alreadyPicked.number}번 상품을 선택하셨습니다!\n1인당 1개의 상품만 선택할 수 있습니다.`);
+            alert(`[${selectedName}]님은 이미 상품을 선택하셨습니다!\n1인당 1개의 상품만 선택할 수 있습니다.`);
             return;
         }
 
-        // 사번 입력 프롬프트 띄우기
         const inputPw = prompt(`[${selectedName}]님, 본인의 사번(PW)을 입력해주세요:`);
-        if(inputPw === null) return; // 취소 버튼 누름
+        if(inputPw === null) return;
 
         if(!inputPw.trim()) {
             alert("사번을 입력하셔야 합니다.");
             return;
         }
 
-        // 서버 전송 (사번 인증 및 선택 처리)
         fetch(API_URL, {
             method: 'POST',
             body: JSON.stringify({ name: selectedName, pw: inputPw.trim(), giftNumber: giftNumber })
