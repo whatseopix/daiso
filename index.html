@@ -8,7 +8,21 @@
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Malgun Gothic', sans-serif; }
         body { background-color: #121212; color: #fff; display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 20px; }
         .container { background-color: #1e1e1e; border: 2px solid #ff4d4d; border-radius: 12px; width: 100%; max-width: 600px; padding: 30px; box-shadow: 0 0 20px rgba(255, 77, 77, 0.3); position: relative; }
-        h1 { text-align: center; color: #ff4d4d; margin-bottom: 5px; font-size: 24px; }
+        
+        .header-flex { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 5px; }
+        h1 { text-align: center; color: #ff4d4d; font-size: 24px; flex-grow: 1; }
+        
+        .version-badge {
+            background-color: #2a1a1a;
+            border: 1px solid #ff4d4d;
+            color: #ff8080;
+            font-size: 11px;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-weight: bold;
+            white-space: nowrap;
+        }
+
         .subtitle { text-align: center; color: #aaa; font-size: 14px; margin-bottom: 25px; }
         
         .step-box { background-color: #2a2a2a; border-radius: 8px; padding: 20px; margin-bottom: 20px; }
@@ -26,7 +40,8 @@
         .gift-name { font-size: 12px; color: #ddd; word-break: keep-all; }
         .gift-owner { font-size: 11px; color: #ff4d4d; margin-top: 4px; font-weight: bold; }
 
-        .reset-btn-wrap { text-align: right; margin-top: 10px; }
+        .footer-flex { display: flex; justify-content: space-between; align-items: center; margin-top: 10px; }
+        .update-info { font-size: 11px; color: #777; }
         .reset-btn { background: none; border: 1px solid #555; color: #aaa; padding: 6px 12px; border-radius: 4px; font-size: 12px; cursor: pointer; }
         .reset-btn:hover { border-color: #ff4d4d; color: #ff4d4d; }
 
@@ -36,7 +51,11 @@
 <body>
 
 <div class="container">
-    <h1>🛒 그냥 털었어 다이소</h1>
+    <div class="header-flex">
+        <div style="width: 70px;"></div>
+        <h1>🛒 그냥 털었어 다이소</h1>
+        <div class="version-badge" id="versionBadge">v1.5 (2026.09.23)</div>
+    </div>
     <div class="subtitle">지원2담당 럭키 드로우 이벤트</div>
 
     <!-- STEP 1 -->
@@ -53,14 +72,18 @@
         <div id="giftContainer" class="loading">데이터를 불러오는 중입니다...</div>
     </div>
 
-    <div class="reset-btn-wrap">
+    <div class="footer-flex">
+        <span class="update-info">최종 빌드: 2026-09-23 10:30</span>
         <button class="reset-btn" onclick="resetData()">⚙️ 관리자 초기화</button>
     </div>
 </div>
 
 <script>
-    const API_URL = "https://script.google.com/macros/s/AKfycbwztHpYDf_oq7ajsnfUv-uPw4MOAwINqtgfRVaN4PKPCCw_PEBNRdXpDM0-DyXCV9d5/exec";
+    const APP_VERSION = "v1.5";
+    const API_URL = "https://script.google.com/macros/s/AKfycbz8mBe045zi4EuosbeW2FjWNnmN-nlVYCFelGx9yeCGcDc4JS-zov-HhBdRMM7qDcOX/exec";
     let globalData = { participants: [], gifts: [] };
+
+    console.log(`[Daiso Event] Client Script Loaded - Version: ${APP_VERSION}`);
 
     // 데이터 불러오기
     function loadData() {
@@ -120,9 +143,7 @@
         });
     }
 
-    function onParticipantChange() {
-        // 선택 시 추가 액션이 필요할 경우 작성
-    }
+    function onParticipantChange() {}
 
     // 상품 선택 실행
     function selectGift(giftNumber) {
@@ -139,7 +160,6 @@
             return;
         }
 
-        // 로딩 표시
         document.getElementById('giftContainer').style.opacity = '0.5';
 
         fetch(API_URL, {
@@ -151,7 +171,7 @@
             document.getElementById('giftContainer').style.opacity = '1';
             if(res.status === 'success') {
                 alert("성공적으로 선택되었습니다!");
-                loadData(); // 최신 데이터 새로고침
+                loadData();
             } else if(res.status === 'already_selected') {
                 alert("이미 다른 사람이 선택한 상품입니다.");
                 loadData();
@@ -190,7 +210,6 @@
         });
     }
 
-    // 페이지 로드 시 데이터 호출
     window.onload = loadData;
 </script>
 
